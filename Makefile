@@ -21,7 +21,10 @@ windows:
 	docker build . -t ${CONTAINER_REGISTRY}/${APP_NAME}:windows_amd64.exe
 
 image:
-  docker build . -t ${CONTAINER_REGISTRY}/${APP_NAME}:default
+  docker build . -t ${CONTAINER_REGISTRY}/${APP_NAME}:linux-amd64
+  docker build . -t ${CONTAINER_REGISTRY}/${APP_NAME}:linux_armv7
+  docker build . -t ${CONTAINER_REGISTRY}/${APP_NAME}:darwin_amd64
+  docker build . -t ${CONTAINER_REGISTRY}/${APP_NAME}:windows_amd64.exe
 
 clean:
 	docker rmi $(CONTAINER_REGISTRY)/$(APP_NAME):linux-amd64
