@@ -24,7 +24,7 @@ image: windows macos linux arm
 
 
 clean:
-	docker rmi $(CONTAINER_REGISTRY)/$(APP_NAME):linux-amd64
+	docker rmi $(CONTAINER_REGISTRY)/$(APP_NAME):linux_amd64
 	docker rmi $(CONTAINER_REGISTRY)/$(APP_NAME):linux_armv7
 	docker rmi $(CONTAINER_REGISTRY)/$(APP_NAME):darwin_amd64
 	docker rmi $(CONTAINER_REGISTRY)/$(APP_NAME):windows_amd64
