@@ -6,7 +6,7 @@ build:
 
 linux:
 	GOOS=linux GOARCH=amd64 go build -o $(APP_NAME)_linux_amd64
-	docker build . -t ${CONTAINER_REGISTRY}/${APP_NAME}:linux-amd64
+	docker build . -t ${CONTAINER_REGISTRY}/${APP_NAME}:linux_amd64
 
 arm:
 	GOOS=linux GOARCH=arm GOARM=7 go build -o $(APP_NAME)_linux_armv7
