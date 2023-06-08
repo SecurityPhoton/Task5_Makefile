@@ -1,31 +1,59 @@
-APP_NAME=hello-world
-CONTAINER_REGISTRY=quay.io
+# Змінні для налаштування збірки
+BINARY_NAME := myapp
+BUILD_DIR := build
+IMAGE_REGISTRY := ghcr.io
+IMAGE_NAMESPACE := pontarr
+IMAGE_NAME := myapp
+IMAGE_TAG := latest
 
-build:
-	go build -o $(APP_NAME)
+format:
+	gofmt -s -w ./
 
-linux:
-	GOOS=linux GOARCH=amd64 go build -o $(APP_NAME)_linux_amd64
-	docker build . -t ${CONTAINER_REGISTRY}/${APP_NAME}:linux_amd64
+lint:
+	golint
 
-arm:
-	GOOS=linux GOARCH=arm GOARM=7 go build -o $(APP_NAME)_linux_armv7
-	docker build . -t ${CONTAINER_REGISTRY}/${APP_NAME}:linux_armv7
+test:
+	go test -v
 
-macos:
-	GOOS=darwin GOARCH=amd64 go build -o $(APP_NAME)_darwin_amd64
-	docker build . -t ${CONTAINER_REGISTRY}/${APP_NAME}:darwin_amd64
-
-windows:
-	GOOS=windows GOARCH=amd64 go build -o $(APP_NAME)_windows_amd64.exe
-	docker build . -t ${CONTAINER_REGISTRY}/${APP_NAME}:windows_amd64
-
-image: windows macos linux arm
+get: 
+	go get
 
 
-clean:
-	docker rmi $(CONTAINER_REGISTRY)/$(APP_NAME):linux_amd64
-	docker rmi $(CONTAINER_REGISTRY)/$(APP_NAME):linux_armv7
-	docker rmi $(CONTAINER_REGISTRY)/$(APP_NAME):darwin_amd64
-	docker rmi $(CONTAINER_REGISTRY)/$(APP_NAME):windows_amd64
-	rm -rf $(APP_NAME)_darwin_amd64 $(APP_NAME)_linux_amd64 $(APP_NAME)_windows_amd64.exe $(APP_NAME)_linux_armv7
+build: format get
+	CGO_ENABLED=0 go build -v -o $(BINARY_NAME) main.go
+
+# Збирання коду для Linux
+linux: export GOOS=linux
+linux: export GOARCH=amd64
+linux: build
+    
+
+# Збирання коду для ARM
+arm: export GOOS=linux
+arm: export GOARCH=arm
+arm: export GOARM=7
+arm: build
+
+# Збирання коду для macOS
+macos: export GOOS=darwin
+macos: export GOARCH=amd64
+macos: build
+
+# Збирання коду для Windows
+windows: export GOOS=windows
+windows: export GOARCH=amd64
+windows: build
+
+
+
+# Видалення створеного образу Docker
+clean: docker-build
+	docker rmi $(IMAGE_REGISTRY)/$(IMAGE_NAMESPACE)/$(IMAGE_NAME):$(IMAGE_TAG) || true
+
+# Збирання Docker-образу
+docker-build:
+	docker build -t $(IMAGE_REGISTRY)/$(IMAGE_NAMESPACE)/$(IMAGE_NAME):$(IMAGE_TAG) .
+
+# Публікація Docker-образу в реєстрі
+docker-publish:
+	docker push $(IMAGE_REGISTRY)/$(IMAGE_NAMESPACE)/$(IMAGE_NAME):$(IMAGE_TAG)
